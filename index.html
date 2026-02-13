@@ -13,12 +13,10 @@
   padding:0;
   box-sizing:border-box;
   font-family:'Cormorant Garamond', serif;
-  /* Evita el zoom automático en Safari al tocar botones */
   touch-action: manipulation;
 }
 
 body{
-  /* Ajuste para que Safari ocupe el 100% real de la pantalla */
   height: 100vh;
   height: -webkit-fill-available;
   overflow:hidden;
@@ -52,14 +50,12 @@ body{
   display:none !important;
 }
 
-/* TITULO */
 .title{
   font-size:clamp(42px,6vw,60px);
   font-family:'Great Vibes', cursive;
   margin-bottom:25px;
 }
 
-/* TARJETA */
 .card-main{
   background:rgba(10,20,60,0.85);
   padding:25px;
@@ -81,7 +77,6 @@ body{
   line-height: 1.4;
 }
 
-/* BOTONES */
 .buttons{
   margin-top:20px;
   display:flex;
@@ -96,23 +91,25 @@ button{
   border-radius:30px;
   font-size:18px;
   cursor:pointer;
-  transition: transform 0.2s;
-  /* Mejora el toque en móviles */
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   -webkit-appearance: none;
 }
 
 #yes{
   background:gold;
   color:black;
+  z-index: 10;
 }
 
 #no{
   background:white;
   color:black;
-  position: relative;
+  /* El botón No ahora tendrá posición absoluta para moverse por toda la pantalla cuando sea necesario */
+  position: relative; 
+  transition: all 0.3s ease;
+  z-index: 999;
 }
 
-/* REGALOS */
 .gift-area{
   margin-top:30px;
   display:flex;
@@ -131,15 +128,8 @@ button{
   font-size:35px;
   cursor:pointer;
   background:rgba(255,255,255,0.1);
-  transition:transform 0.3s ease;
 }
 
-.icon-box:hover{
-  transform:scale(1.1);
-  background:rgba(255,215,0,0.2);
-}
-
-/* MODAL */
 .modal{
   position:fixed;
   inset:0;
@@ -149,9 +139,8 @@ button{
   display:flex;
   justify-content:center;
   align-items:center;
-  z-index:9999;
+  z-index:10000;
   animation:modalIn 0.4s ease forwards;
-  cursor: pointer;
 }
 
 @keyframes modalIn{
@@ -159,29 +148,24 @@ button{
   to{opacity:1; transform:scale(1);}
 }
 
-/* CONTENEDOR DE LA IMAGEN */
 .gift-img {
   max-width: 80%;
-  max-height: 50vh; /* Ajustado para que no tape las frases en móvil */
+  max-height: 50vh;
   width: auto;
   height: auto;
   border-radius: 15px;
-  z-index: 10;
-  box-shadow: 0 0 25px rgba(255,215,0,0.4);
   border: 2px solid gold;
   object-fit: contain;
 }
 
-/* NOTAS POSICIÓN FIJA */
 .note{
   position:absolute;
   background:white;
   color:black;
   padding:8px 12px;
   border-radius:10px;
-  font-size:13px; /* Un poco más pequeña para móviles */
+  font-size:13px;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   white-space: nowrap;
 }
 </style>
@@ -225,14 +209,13 @@ let finished=false;
 const textEl=document.getElementById("text");
 const cardClick=document.getElementById("card-click");
 const mainContainer=document.getElementById("main-container");
+const noBtn=document.getElementById("no");
 
 cardClick.addEventListener("click",()=>{
   if(finished) return;
-
   if(index < texts.length){
     textEl.innerText = texts[index];
     index++;
-
     if(index === texts.length){
       finished = true;
       document.getElementById("buttons").classList.remove("hidden");
@@ -240,26 +223,43 @@ cardClick.addEventListener("click",()=>{
   }
 });
 
-const noBtn=document.getElementById("no");
-const noTexts=["¿Segura?","¿De verdad?","Piénsalo bien","Última oportunidad"];
+const noTexts=["¿Segura?","¿De verdad?","Piénsalo bien","¡No puedes decir que no!","Inténtalo otra vez 😜"];
 let noIndex=0;
 
-function moveNo(e){
-  e.stopPropagation();
-  const x = Math.random() * 150 - 75;
-  const y = Math.random() * 100 - 50;
-  noBtn.style.transform = `translate(${x}px, ${y}px)`;
+// FUNCIÓN DE MOVIMIENTO EVASIVO
+function fugeNo(e) {
+  if(e) e.preventDefault();
+  
+  // Cambiamos el texto
   textEl.innerText = noTexts[noIndex];
   noIndex = (noIndex + 1) % noTexts.length;
+
+  // Calculamos límites para que no se salga de la pantalla
+  // Dejamos un margen de 100px para que el botón no quede pegado a los bordes
+  const padding = 100;
+  const maxX = window.innerWidth - padding;
+  const maxY = window.innerHeight - padding;
+
+  const randomX = Math.random() * maxX;
+  const randomY = Math.random() * maxY;
+
+  // Cambiamos a posición fija para que se mueva por toda la pantalla
+  noBtn.style.position = "fixed";
+  noBtn.style.left = randomX + "px";
+  noBtn.style.top = randomY + "px";
 }
 
-noBtn.addEventListener("mouseover", moveNo);
-noBtn.addEventListener("click", moveNo);
-// Añadido para que en móvil funcione al solo tocarlo
-noBtn.addEventListener("touchstart", moveNo);
+// Eventos para evitar el botón en PC y Móvil
+noBtn.addEventListener("mouseover", fugeNo);
+noBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault(); // Evita el click real en iPhone
+  fugeNo();
+});
 
 document.getElementById("yes").addEventListener("click",(e)=>{
   e.stopPropagation();
+  // Al decir que sí, reseteamos el botón No por si quedó volando
+  noBtn.classList.add("hidden");
   textEl.innerHTML="Gracias por decir que sí 🖤<br>Eres lo más bonito que me ha pasado<br>Te quiero muchísimo";
   document.getElementById("buttons").classList.add("hidden");
   document.getElementById("extras").classList.remove("hidden");
@@ -287,32 +287,18 @@ function openLetter(){
 
 function openModal(content, withNotes=false){
   mainContainer.style.opacity = "0";
-
   const modal=document.createElement("div");
   modal.className="modal";
   modal.innerHTML=content;
   document.body.appendChild(modal);
 
   if(withNotes){
-    // Posiciones ajustadas un poco más adentro para que no se corten en pantallas estrechas
     const positions = [
-      {top: '12%', left: '10%'},
-      {top: '12%', left: '60%'},
-      {top: '82%', left: '15%'},
-      {top: '82%', left: '65%'},
-      {top: '48%', left: '2%'},
-      {top: '48%', left: '72%'}
+      {top: '12%', left: '10%'}, {top: '12%', left: '60%'},
+      {top: '82%', left: '15%'}, {top: '82%', left: '65%'},
+      {top: '48%', left: '2%'}, {top: '48%', left: '72%'}
     ];
-    
-    const phrases = [
-      "Tu sonrisa ilumina mi vida",
-      "Eres mi lugar seguro",
-      "Siempre tú",
-      "Mi persona favorita",
-      "Gracias por existir",
-      "Te quiero"
-    ];
-
+    const phrases = ["Tu sonrisa ilumina mi vida", "Eres mi lugar seguro", "Siempre tú", "Mi persona favorita", "Gracias por existir", "Te quiero"];
     phrases.forEach((p, i) => {
       const note=document.createElement("div");
       note.className="note";
@@ -322,13 +308,11 @@ function openModal(content, withNotes=false){
       modal.appendChild(note);
     });
   }
-
   modal.onclick = () => {
     modal.remove();
     mainContainer.style.opacity = "1";
   };
 }
 </script>
-
 </body>
 </html>
