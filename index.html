@@ -141,7 +141,6 @@ button{
   to{opacity:1; transform:scale(1);}
 }
 
-/* CONTENEDOR DE LA IMAGEN CENTRAL */
 .gift-content-wrapper {
   position: relative;
   display: flex;
@@ -152,8 +151,8 @@ button{
 }
 
 .gift-img {
-  max-width: 75%;
-  max-height: 45vh;
+  max-width: 70%; /* Un poco más pequeña para que las notas queden más cerca */
+  max-height: 40vh;
   width: auto;
   height: auto;
   border-radius: 15px;
@@ -163,14 +162,13 @@ button{
   z-index: 11;
 }
 
-/* NOTAS ALREDEDOR (SIN TOCAR LA IMAGEN) */
 .note{
   position:absolute;
   background:white;
   color:black;
   padding:8px 12px;
   border-radius:10px;
-  font-size:12px; /* Tamaño optimizado para iPhone */
+  font-size:12px;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   white-space: nowrap;
@@ -262,7 +260,6 @@ document.getElementById("yes").addEventListener("click",(e)=>{
 
 function openGift(){
   const tuImagen = "https://i.ibb.co/7JFpM0VK/flores.png"; 
-  // Envolvemos la imagen en un contenedor para las frases
   const content = `
     <div class="gift-content-wrapper">
       <img src="${tuImagen}" class="gift-img" onerror="this.src='https://images.unsplash.com/photo-1596431911652-9430c822e1a3?q=80&w=500&auto=format&fit=crop'">
@@ -293,24 +290,23 @@ function openModal(content, withNotes=false){
   document.body.appendChild(modal);
 
   if(withNotes){
-    // POSICIONES ESTRATÉGICAS ALREDEDOR DEL CUADRO CENTRAL
-    // Usamos porcentajes que se alejan del centro (50%, 50%)
+    // POSICIONES MÁS CERCANAS AL CENTRO (RAMO)
     const positions = [
-      {top: '10%', left: '5%'},   // Arriba Izquierda
-      {top: '10%', left: '55%'},  // Arriba Derecha
-      {top: '85%', left: '10%'},  // Abajo Izquierda
-      {top: '85%', left: '60%'},  // Abajo Derecha
-      {top: '48%', left: '2%'},   // Lateral Izquierdo
-      {top: '48%', left: '78%'}   // Lateral Derecho
+      {top: '22%', left: '8%'},   // Arriba Izquierda (bajada de 10% a 22%)
+      {top: '22%', left: '52%'},  // Arriba Derecha (bajada de 10% a 22%)
+      {top: '75%', left: '10%'},  // Abajo Izquierda (subida de 85% a 75%)
+      {top: '75%', left: '55%'},  // Abajo Derecha (subida de 85% a 75%)
+      {top: '48%', left: '4%'},   // Lateral Izquierdo
+      {top: '48%', left: '72%'}   // Lateral Derecho
     ];
     
     const phrases = [
-      "Tu sonrisa ✨",
-      "Lugar seguro",
-      "Siempre tú",
-      "Mi favorita",
-      "Existir 🖤",
-      "Te quiero"
+      "Eres especial 🖤",
+      "Te quiero 🖤",
+      "Gracias por existir 🖤",
+      "Me alegras los días 🖤",
+      "Eres mi paz 🖤",
+      "Lo mejor de mi día 🖤"
     ];
 
     phrases.forEach((p, i) => {
